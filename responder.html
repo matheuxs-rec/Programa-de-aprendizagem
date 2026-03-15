@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Perguntas sobre Emoções</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#4facfe;
+color:white;
+padding:30px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+}
+
+button{
+display:block;
+margin:15px auto;
+padding:20px;
+width:90%;
+font-size:18px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:white;
+color:black;
+}
+
+button:hover{
+background:#eee;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2 id="pergunta"></h2>
+
+<div id="opcoes"></div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyC2tdq0znm2b3eYeaIXtoni3O7Oh5j_WII",
+authDomain: "evellyn1414.firebaseapp.com",
+databaseURL: "https://evellyn1414-default-rtdb.firebaseio.com",
+projectId: "evellyn1414",
+storageBucket: "evellyn1414.appspot.com",
+messagingSenderId: "739274736954",
+appId: "1:739274736954:web:fb58172bdef8b4f3427c03"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app)
+
+let perguntas=[
+
+{
+texto:"Quando uma pessoa encontra um perigo inesperado, qual emoção básica costuma surgir primeiro?",
+opcoes:["Medo","Raiva","Curiosidade"]
+},
+
+{
+texto:"Qual dimensão da emoção representa a experiência subjetiva da emoção?",
+opcoes:["Sentimentos","Excitação corporal","Expressão social"]
+},
+
+{
+texto:"Qual dimensão da emoção envolve a ativação fisiológica do corpo?",
+opcoes:["Excitação corporal","Sentimentos","Memória"]
+},
+
+{
+texto:"As expressões faciais e gestos fazem parte de qual componente da emoção?",
+opcoes:["Componente social-expressivo","Excitação corporal","Componente cognitivo"]
+},
+
+{
+texto:"Qual das alternativas representa uma emoção social?",
+opcoes:["Vergonha","Medo","Surpresa"]
+},
+
+{
+texto:"O que geralmente desencadeia uma emoção?",
+opcoes:["Um evento significativo da vida","Apenas pensamentos aleatórios","Somente mudanças hormonais"]
+}
+
+]
+
+let atual=0
+
+function mostrarPergunta(){
+
+let p=perguntas[atual]
+
+document.getElementById("pergunta").innerText=p.texto
+
+let opcoesHTML=""
+
+p.opcoes.forEach(op=>{
+
+opcoesHTML+=`<button onclick="votar('${op}')">${op}</button>`
+
+})
+
+document.getElementById("opcoes").innerHTML=opcoesHTML
+
+}
+
+function votar(op){
+
+const votoRef = ref(db,"respostas/"+op)
+
+runTransaction(votoRef,(current)=>{
+return (current||0)+1
+})
+
+atual++
+
+if(atual<perguntas.length){
+
+mostrarPergunta()
+
+}else{
+
+document.body.innerHTML="<h2>Obrigado por participar!</h2>"
+
+}
+
+}
+
+window.votar=votar
+
+mostrarPergunta()
+
+</script>
+
+</body>
+
+</html>

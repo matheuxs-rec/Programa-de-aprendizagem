@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Experimento de Emoções</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#4facfe,#00f2fe);
+margin:0;
+text-align:center;
+}
+
+.container{
+background:white;
+max-width:900px;
+margin:auto;
+padding:30px;
+border-radius:15px;
+margin-top:40px;
+box-shadow:0px 10px 20px rgba(0,0,0,0.2);
+}
+
+.result{
+font-size:22px;
+margin:10px;
+}
+
+#reactionBox{
+margin-top:30px;
+padding:40px;
+background:red;
+color:white;
+font-size:22px;
+border-radius:10px;
+cursor:pointer;
+}
+
+button{
+padding:10px 20px;
+margin-top:20px;
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Pergunta da Turma</h1>
+
+<h2 id="pergunta"></h2>
+
+<div id="resultados"></div>
+
+<button onclick="proximaPergunta()">Próxima Pergunta</button>
+
+</div>
+
+<div class="container">
+
+<h2>Teste de Tempo de Reação</h2>
+
+<p>Clique quando a caixa ficar verde</p>
+
+<div id="reactionBox">Espere...</div>
+
+<p id="tempo"></p>
+
+</div>
+
+<div class="container">
+
+<h2>Responder pelo celular</h2>
+
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=responder.html">
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyC2tdq0znm2b3eYeaIXtoni3O7Oh5j_WII",
+authDomain: "evellyn1414.firebaseapp.com",
+databaseURL: "https://evellyn1414-default-rtdb.firebaseio.com",
+projectId: "evellyn1414",
+storageBucket: "evellyn1414.appspot.com",
+messagingSenderId: "739274736954",
+appId: "1:739274736954:web:fb58172bdef8b4f3427c03"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let perguntas=[
+
+{
+texto:"Quando uma pessoa encontra um perigo inesperado, qual emoção básica costuma surgir primeiro?",
+opcoes:["Medo","Raiva","Curiosidade"]
+},
+
+{
+texto:"Qual dimensão da emoção representa a experiência subjetiva da emoção?",
+opcoes:["Sentimentos","Excitação corporal","Expressão social"]
+},
+
+{
+texto:"Qual dimensão envolve a ativação fisiológica do corpo?",
+opcoes:["Excitação corporal","Sentimentos","Memória"]
+},
+
+{
+texto:"Expressões faciais e gestos fazem parte de qual componente da emoção?",
+opcoes:["Componente social-expressivo","Excitação corporal","Componente cognitivo"]
+},
+
+{
+texto:"Qual dessas é uma emoção social?",
+opcoes:["Vergonha","Medo","Surpresa"]
+},
+
+{
+texto:"O que normalmente desencadeia uma emoção?",
+opcoes:["Evento significativo","Pensamento aleatório","Nada específico"]
+}
+
+]
+
+let perguntaAtual=0
+
+function mostrarPergunta(){
+
+let p=perguntas[perguntaAtual]
+
+document.getElementById("pergunta").innerText=p.texto
+
+let html=""
+
+p.opcoes.forEach(op=>{
+
+html+=`<div class="result">${op}: <span id="${op}">0</span></div>`
+
+})
+
+document.getElementById("resultados").innerHTML=html
+
+const respostasRef = ref(db,"respostas")
+
+onValue(respostasRef,(snapshot)=>{
+
+let data=snapshot.val()
+
+if(!data) return
+
+p.opcoes.forEach(op=>{
+
+let valor=data[op]||0
+
+let el=document.getElementById(op)
+
+if(el) el.innerText=valor
+
+})
+
+})
+
+}
+
+function proximaPergunta(){
+
+perguntaAtual++
+
+if(perguntaAtual<perguntas.length){
+
+mostrarPergunta()
+
+}else{
+
+document.getElementById("pergunta").innerText="Fim das perguntas"
+
+document.getElementById("resultados").innerHTML=""
+
+}
+
+}
+
+window.proximaPergunta=proximaPergunta
+
+mostrarPergunta()
+
+let box=document.getElementById("reactionBox")
+
+let startTime
+let esperando=true
+
+function iniciarTeste(){
+
+box.style.background="red"
+box.innerText="Espere..."
+
+let delay=Math.random()*4000+2000
+
+setTimeout(()=>{
+
+box.style.background="green"
+box.innerText="CLIQUE!"
+
+startTime=Date.now()
+
+esperando=false
+
+},delay)
+
+}
+
+box.onclick=function(){
+
+if(esperando){
+
+document.getElementById("tempo").innerText="Muito cedo!"
+
+return
+
+}
+
+let tempo=Date.now()-startTime
+
+document.getElementById("tempo").innerText="Tempo: "+tempo+" ms"
+
+esperando=true
+
+iniciarTeste()
+
+}
+
+iniciarTeste()
+
+</script>
+
+</body>
+</html>
